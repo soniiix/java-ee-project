@@ -3,16 +3,20 @@ package model;
 import org.mindrot.jbcrypt.BCrypt;
 
 public class User {
-	private String nom;
-	private String prenom;
-	private String login;
-	private String mdp;
-	
-	public User(String nom, String prenom, String login, String mdp) {
+    private String nom;
+    private String prenom;
+    private String login;
+    private String mdp;
+
+    public User(String nom, String prenom, String login, String mdp, boolean isHashed) {
         this.nom = nom;
         this.prenom = prenom;
         this.login = login;
-        this.mdp = hashPassword(mdp);
+        this.mdp = isHashed ? mdp : hashPassword(mdp);
+    }
+
+    public User(String nom, String prenom, String login, String mdp) {
+        this(nom, prenom, login, mdp, false);
     }
 
     private String hashPassword(String plainPassword) {
@@ -51,7 +55,7 @@ public class User {
         return mdp;
     }
 
-    public void setMdp(String mdp) {
-        this.mdp = hashPassword(mdp);
+    public void setMdp(String mdp, boolean isHashed) {
+        this.mdp = isHashed ? mdp : hashPassword(mdp);
     }
 }

@@ -10,16 +10,18 @@ public class UserDAO {
 
     public boolean registerUser(User user) {
         String sql = "INSERT INTO users (nom, prenom, login, mdp) VALUES (?, ?, ?, ?)";
-
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                PreparedStatement statement = connection.prepareStatement(sql)) {
-        	statement.setString(1, user.getNom());
-        	statement.setString(2, user.getPrenom());
-        	statement.setString(3, user.getLogin());
-        	statement.setString(4, user.getMdp());
-
-            return statement.executeUpdate() > 0;
-        } catch (SQLException e) {
+        try {
+        	Class.forName("com.mysql.cj.jdbc.Driver");
+	        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+	                PreparedStatement statement = connection.prepareStatement(sql)) {
+		        	statement.setString(1, user.getNom());
+		        	statement.setString(2, user.getPrenom());
+		        	statement.setString(3, user.getLogin());
+		        	statement.setString(4, user.getMdp());
+		
+		            return statement.executeUpdate() > 0;
+	        	}
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -27,16 +29,25 @@ public class UserDAO {
 
     public User getUserByLogin(String login) {
         String sql = "SELECT * FROM users WHERE login = ?";
+        
+        try {
+        	Class.forName("com.mysql.cj.jdbc.Driver");
+	        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+	             PreparedStatement statement = connection.prepareStatement(sql)) {
+	            
+	            statement.setString(1, login);
+	            System.out.println("Exécution de la requête : " + statement.toString()); // Debug
+	
+	            ResultSet rs = statement.executeQuery();
+	
+	            if (rs.next()) {
+	            	return new User(rs.getString("nom"), rs.getString("prenom"), rs.getString("login"), rs.getString("mdp"), true);
 
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, login);
-            ResultSet rs = statement.executeQuery();
-
-            if (rs.next()) {
-                return new User(rs.getString("nom"), rs.getString("prenom"), rs.getString("login"), rs.getString("mdp"));
-            }
-        } catch (SQLException e) {
+	            } else {
+	                System.out.println("Aucun utilisateur trouvé pour le login : " + login);
+	            }
+	        }
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;

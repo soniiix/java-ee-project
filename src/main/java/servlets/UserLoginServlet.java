@@ -42,17 +42,19 @@ public class UserLoginServlet extends HttpServlet {
         UserDAO userDAO = new UserDAO();
         User user = userDAO.getUserByLogin(login);
         
-        if(user.checkPassword(mdp)) request.setAttribute("error", "bug user");
-        
-
-        if (user != null && user.checkPassword(mdp)) {
+        if (user == null) {
+            request.setAttribute("error", "Utilisateur introuvable.");
+        } else if (!user.checkPassword(mdp)) {
+            request.setAttribute("error", "Mot de passe incorrect.");
+        } else {
+        	System.out.println("ok");
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
-            request.getRequestDispatcher("/WEB-INF/list_livre.jsp").forward(request, response);
-        } else {
-            request.setAttribute("error", "Identifiants incorrects.");
-            request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/livres");
+            return;
         }
+        request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+
     }
 
 }
