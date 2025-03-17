@@ -52,4 +52,25 @@ public class UserDAO {
         }
         return null;
     }
+    
+    public boolean updateUser(User user) {
+        String sql = "UPDATE users SET nom = ?, prenom = ?, login = ? WHERE login = ?";
+        
+        try {
+        	try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+   	             PreparedStatement statement = connection.prepareStatement(sql)) {
+	            
+        		statement.setString(1, user.getNom());
+        		statement.setString(2, user.getPrenom());
+        		statement.setString(3, user.getLogin());
+        		statement.setString(4, user.getLogin());
+	
+	            int rowsUpdated = statement.executeUpdate();
+	            return rowsUpdated > 0;
+	        }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

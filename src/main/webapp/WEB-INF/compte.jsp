@@ -20,12 +20,13 @@
 %>
 <div class="container mt-5">
     <h2>Informations du compte</h2>
-    <div class="card mt-3 mb-3" style="width: 18rem;">
+    <div class="card mt-3 mb-3">
 		 <ul class="list-group list-group-flush">
 			<li class="list-group-item"><strong>Nom</strong> : <%= user.getNom() %></li>
 			<li class="list-group-item"><strong>Prénom</strong> : <%= user.getPrenom() %></li>
 			<li class="list-group-item"><strong>Login</strong> : <%= user.getLogin() %></li>
 		 </ul>
 	</div>
+	<a href="${pageContext.request.contextPath}/modifier_compte" class="btn btn-info">Modifier</a>
     <a href="${pageContext.request.contextPath}/user_logout" class="btn btn-danger">Déconnexion</a>
 </div>
