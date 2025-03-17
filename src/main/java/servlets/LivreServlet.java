@@ -31,15 +31,25 @@ public class LivreServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		LivreDAO livreDAO = new LivreDAO();
-        ArrayList<Livre> livres = livreDAO.getAllLivres();
-		
-		request.setAttribute("livres", livres);
-		this.getServletContext().getRequestDispatcher("/WEB-INF/list_livre.jsp")
-			.forward(request, response);
-	}
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        LivreDAO livreDAO = new LivreDAO();
+        
+        String search = request.getParameter("q");
+        String genre = request.getParameter("genre");
+        String anneeStr = request.getParameter("annee");
+        Integer annee = (anneeStr != null && !anneeStr.isEmpty()) ? Integer.parseInt(anneeStr) : null;
+
+        ArrayList<Livre> livres = livreDAO.getLivresFiltres(search, genre, annee);
+        ArrayList<String> genres = livreDAO.getGenres();
+        ArrayList<Integer> annees = livreDAO.getAnnees();
+
+        request.setAttribute("livres", livres);
+        request.setAttribute("genres", genres);
+        request.setAttribute("annees", annees);
+
+        this.getServletContext().getRequestDispatcher("/WEB-INF/list_livre.jsp")
+            .forward(request, response);
+    }
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)

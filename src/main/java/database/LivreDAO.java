@@ -40,6 +40,48 @@ public class LivreDAO {
         return livres;
     }
     
+    public ArrayList<String> getGenres() {
+        ArrayList<String> genres = new ArrayList<>();
+        String sql = "SELECT DISTINCT(genre) FROM livres;";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                 PreparedStatement statement = connection.prepareStatement(sql);
+                 ResultSet resultSet = statement.executeQuery()) {
+
+                while (resultSet.next()) {
+                    String genre = resultSet.getString("genre");
+                    genres.add(genre);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return genres;
+    }
+    
+    public ArrayList<Integer> getAnnees() {
+        ArrayList<Integer> annees = new ArrayList<>();
+        String sql = "SELECT DISTINCT(anneePublication) FROM livres;";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                 PreparedStatement statement = connection.prepareStatement(sql);
+                 ResultSet resultSet = statement.executeQuery()) {
+
+                while (resultSet.next()) {
+                    Integer annee = resultSet.getInt("anneePublication");
+                    annees.add(annee);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return annees;
+    }
+    
     public boolean addLivre(Livre livre) {
         String sql = "INSERT INTO livres (titre, auteur, anneePublication, genre) VALUES (?, ?, ?, ?)";
         try {
@@ -85,6 +127,56 @@ public class LivreDAO {
         }
         
         return livre;
+    }
+    
+    public ArrayList<Livre> getLivresFiltres(String search, String genre, Integer annee) {
+        ArrayList<Livre> livres = new ArrayList<>();
+        String sql = "SELECT * FROM livres WHERE 1=1";
+
+        if (search != null && !search.isEmpty()) {
+            sql += " AND (titre LIKE ? OR auteur LIKE ?)";
+        }
+        if (genre != null && !genre.isEmpty()) {
+            sql += " AND genre = ?";
+        }
+        if (annee != null) {
+            sql += " AND anneePublication = ?";
+        }
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                 PreparedStatement statement = connection.prepareStatement(sql)) {
+
+                int paramIndex = 1;
+                if (search != null && !search.isEmpty()) {
+                    statement.setString(paramIndex++, "%" + search + "%");
+                    statement.setString(paramIndex++, "%" + search + "%");
+                }
+                if (genre != null && !genre.isEmpty()) {
+                    statement.setString(paramIndex++, genre);
+                }
+                if (annee != null) {
+                    statement.setInt(paramIndex++, annee);
+                }
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        Livre livre = new Livre(
+                            resultSet.getInt("id"),
+                            resultSet.getString("titre"),
+                            resultSet.getString("auteur"),
+                            resultSet.getInt("anneePublication"),
+                            resultSet.getString("genre")
+                        );
+                        livres.add(livre);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return livres;
     }
     
     public void updateLivre(Livre livre) {

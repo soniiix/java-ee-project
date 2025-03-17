@@ -21,19 +21,21 @@
 <div class="container mt-5">
     <h2>Modifier mes informations</h2>
     <form action="${pageContext.request.contextPath}/modifier_compte" method="post">
-        <div class="mb-3">
+        <div class="mb-4 mt-4">
             <label for="nom" class="form-label">Nom</label>
             <input type="text" class="form-control" id="nom" name="nom" value="<%= user.getNom() %>" required>
         </div>
-        <div class="mb-3">
+        <div class="mb-4">
             <label for="prenom" class="form-label">Prénom</label>
             <input type="text" class="form-control" id="prenom" name="prenom" value="<%= user.getPrenom() %>" required>
         </div>
-        <div class="mb-3">
+        <div class="mb-4">
             <label for="login" class="form-label">Login</label>
             <input type="text" class="form-control" id="login" name="login" value="<%= user.getLogin() %>" required>
         </div>
-        <button type="submit" class="btn btn-info">Enregistrer</button>
-        <a href="${pageContext.request.contextPath}/compte" class="btn btn-secondary">Annuler</a>
+        <div class="mt-4">
+        	<button type="submit" class="btn btn-info">Enregistrer</button>
+        	<a href="${pageContext.request.contextPath}/compte" class="btn btn-secondary">Annuler</a>
+        </div>
     </form>
 </div>

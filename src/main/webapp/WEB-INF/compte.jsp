@@ -20,7 +20,7 @@
 %>
 <div class="container mt-5">
     <h2>Informations du compte</h2>
-    <div class="card mt-3 mb-3">
+    <div class="card mt-4 mb-4">
 		 <ul class="list-group list-group-flush">
 			<li class="list-group-item"><strong>Nom</strong> : <%= user.getNom() %></li>
 			<li class="list-group-item"><strong>Prénom</strong> : <%= user.getPrenom() %></li>
