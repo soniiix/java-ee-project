@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import database.LivreDAO;
+import dao.DAOConfigurationException;
+import dao.DAOFactory;
+import dao.LivreDAO;
 import model.Livre;
 
 /**
@@ -37,9 +39,7 @@ public class LivreRegister extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		LivreDAO livreDAO = new LivreDAO();
-		
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {	
 		String titre = request.getParameter("titre");
 		String auteur = request.getParameter("auteur");
 		String anneePublication = request.getParameter("anneePublication");
@@ -62,14 +62,21 @@ public class LivreRegister extends HttpServlet {
 
 		Livre newLivre = new Livre(0, titre, auteur, annee, genre);
 
-		boolean success = livreDAO.addLivre(newLivre);
-		
-		if (success) {
-			response.sendRedirect(request.getContextPath() + "/livres");
-		} else {
-			request.setAttribute("error", "Erreur lors de l'ajout du livre. Veuillez réessayer.");
-			request.getRequestDispatcher("/form_livre.jsp").forward(request, response);
-		}
+		try {
+            DAOFactory daoFactory = DAOFactory.getInstance();
+            LivreDAO livreDAO = new LivreDAO(daoFactory);
+            
+            boolean success = livreDAO.addLivre(newLivre);
+    		
+    		if (success) {
+    			response.sendRedirect(request.getContextPath() + "/livres");
+    		} else {
+    			request.setAttribute("error", "Erreur lors de l'ajout du livre. Veuillez réessayer.");
+    			request.getRequestDispatcher("/form_livre.jsp").forward(request, response);
+    		}
+        } catch (DAOConfigurationException e) {
+            e.printStackTrace();
+        }
 	}
 
 }

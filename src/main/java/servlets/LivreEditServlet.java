@@ -7,7 +7,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import database.LivreDAO;
+import dao.DAOConfigurationException;
+import dao.DAOFactory;
+import dao.LivreDAO;
 import model.Livre;
 
 /**
@@ -29,15 +31,22 @@ public class LivreEditServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		int id = Integer.parseInt(request.getParameter("id"));
-        LivreDAO livreDAO = new LivreDAO();
-        Livre livre = livreDAO.getLivreById(id);
-
-        if (livre != null) {
-            request.setAttribute("livre", livre);
-            this.getServletContext().getRequestDispatcher("/form_livre_edit.jsp").forward(request, response);
-        } else {
-            request.setAttribute("error", "Livre non trouvé.");
-            this.getServletContext().getRequestDispatcher("/livres").forward(request, response);
+		
+		try {
+            DAOFactory daoFactory = DAOFactory.getInstance();
+            LivreDAO livreDAO = new LivreDAO(daoFactory);
+            
+            Livre livre = livreDAO.getLivreById(id);
+            
+            if (livre != null) {
+                request.setAttribute("livre", livre);
+                this.getServletContext().getRequestDispatcher("/form_livre_edit.jsp").forward(request, response);
+            } else {
+                request.setAttribute("error", "Livre non trouvé.");
+                this.getServletContext().getRequestDispatcher("/livres").forward(request, response);
+            }
+        } catch (DAOConfigurationException e) {
+            e.printStackTrace();
         }
 	}
 

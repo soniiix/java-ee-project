@@ -7,7 +7,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import database.UserDAO;
+import dao.DAOConfigurationException;
+import dao.DAOFactory;
+import dao.UserDAO;
 import model.User;
 
 /**
@@ -39,16 +41,22 @@ public class UserRegisterServlet extends HttpServlet {
         String prenom = request.getParameter("prenom");
         String login = request.getParameter("login");
         String mdp = request.getParameter("mdp");
+        
+        try {
+            DAOFactory daoFactory = DAOFactory.getInstance();
+            UserDAO userDAO = new UserDAO(daoFactory);
 
-        UserDAO userDAO = new UserDAO();
-        User user = new User(nom, prenom, login, mdp);
+            User user = new User(nom, prenom, login, mdp);
 
-        if (userDAO.registerUser(user)) {
-        	request.setAttribute("success", "Compte créé ! Veuillez vous connecter ci-dessous.");
-            request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
-        } else {
-            request.setAttribute("error", "Erreur lors de l'inscription.");
-            request.getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
+            if (userDAO.registerUser(user)) {
+            	request.setAttribute("success", "Compte créé ! Veuillez vous connecter ci-dessous.");
+                request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+            } else {
+                request.setAttribute("error", "Erreur lors de l'inscription.");
+                request.getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
+            }
+        } catch (DAOConfigurationException e) {
+            e.printStackTrace();
         }
 	}
 

@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import database.UserDAO;
+import dao.DAOConfigurationException;
+import dao.DAOFactory;
+import dao.UserDAO;
 import model.User;
 
 /**
@@ -67,16 +69,22 @@ public class CompteEditServlet extends HttpServlet {
         user.setNom(nom);
         user.setPrenom(prenom);
         user.setLogin(login);
+        
+        try {
+            DAOFactory daoFactory = DAOFactory.getInstance();
+            UserDAO userDAO = new UserDAO(daoFactory);
 
-        UserDAO userDAO = new UserDAO();
-        boolean success = userDAO.updateUser(user);
+            boolean success = userDAO.updateUser(user);
 
-        if (success) {
-            session.setAttribute("user", user); // Met à jour la session
-            response.sendRedirect(request.getContextPath() + "/compte");
-        } else {
-            request.setAttribute("error", "Une erreur est survenue lors de la mise à jour.");
-            request.getRequestDispatcher("/WEB-INF/modifier_compte.jsp").forward(request, response);
+            if (success) {
+                session.setAttribute("user", user);
+                response.sendRedirect(request.getContextPath() + "/compte");
+            } else {
+                request.setAttribute("error", "Une erreur est survenue lors de la mise à jour.");
+                request.getRequestDispatcher("/WEB-INF/modifier_compte.jsp").forward(request, response);
+            }
+        } catch (DAOConfigurationException e) {
+            e.printStackTrace();
         }
     }
 

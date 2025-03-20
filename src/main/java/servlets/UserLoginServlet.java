@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import database.UserDAO;
+import dao.DAOConfigurationException;
+import dao.DAOFactory;
+import dao.UserDAO;
 import model.User;
 
 /**
@@ -38,23 +40,28 @@ public class UserLoginServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String login = request.getParameter("login");
         String mdp = request.getParameter("mdp");
-
-        UserDAO userDAO = new UserDAO();
-        User user = userDAO.getUserByLogin(login);
         
-        if (user == null) {
-            request.setAttribute("error", "Utilisateur introuvable.");
-        } else if (!user.checkPassword(mdp)) {
-            request.setAttribute("error", "Mot de passe incorrect.");
-        } else {
-        	System.out.println("ok");
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-            response.sendRedirect(request.getContextPath() + "/livres");
-            return;
-        }
-        request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+        try {
+            DAOFactory daoFactory = DAOFactory.getInstance();
+            UserDAO userDAO = new UserDAO(daoFactory);
 
+            User user = userDAO.getUserByLogin(login);
+            
+            if (user == null) {
+                request.setAttribute("error", "Utilisateur introuvable.");
+            } else if (!user.checkPassword(mdp)) {
+                request.setAttribute("error", "Mot de passe incorrect.");
+            } else {
+            	System.out.println("ok");
+                HttpSession session = request.getSession();
+                session.setAttribute("user", user);
+                response.sendRedirect(request.getContextPath() + "/livres");
+                return;
+            }
+            request.getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+        } catch (DAOConfigurationException e) {
+            e.printStackTrace();
+        }
     }
 
 }

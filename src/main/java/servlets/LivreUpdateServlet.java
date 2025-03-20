@@ -7,7 +7,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import database.LivreDAO;
+import dao.DAOConfigurationException;
+import dao.DAOFactory;
+import dao.LivreDAO;
 import model.Livre;
 
 /**
@@ -44,9 +46,15 @@ public class LivreUpdateServlet extends HttpServlet {
         String genre = request.getParameter("genre");
 
         Livre livre = new Livre(id, titre, auteur, anneePublication, genre);
-        LivreDAO livreDAO = new LivreDAO();
-
-        livreDAO.updateLivre(livre);
+        
+        try {
+            DAOFactory daoFactory = DAOFactory.getInstance();
+            LivreDAO livreDAO = new LivreDAO(daoFactory);
+            
+            livreDAO.updateLivre(livre);
+        } catch (DAOConfigurationException e) {
+            e.printStackTrace();
+        }
 
         response.sendRedirect(request.getContextPath() + "/livres");
 	}

@@ -7,7 +7,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import database.LivreDAO;
+import dao.DAOConfigurationException;
+import dao.DAOFactory;
+import dao.LivreDAO;
 
 /**
  * Servlet implementation class LivreDeleteServlet
@@ -33,8 +35,14 @@ public class LivreDeleteServlet extends HttpServlet {
             try {
                 int id = Integer.parseInt(idStr);
                 
-                LivreDAO livreDAO = new LivreDAO();
-                livreDAO.deleteLivre(id);
+                try {
+	                DAOFactory daoFactory = DAOFactory.getInstance();
+	                LivreDAO livreDAO = new LivreDAO(daoFactory);
+	                
+	                livreDAO.deleteLivre(id);
+                } catch (DAOConfigurationException e) {
+                    e.printStackTrace();
+                }
 
                 response.sendRedirect(request.getContextPath() + "/livres");
             } catch (NumberFormatException e) {
